@@ -1,46 +1,95 @@
 # NeighbourConnect
 
-## Use the app offline on an Android phone
+NeighbourConnect is a Flutter app for bringing a neighbourhood together. Members
+can share updates, discuss posts, organise events, and report local issues. The
+app combines a Flutter client with SQLite persistence and a Node.js/MySQL
+backend foundation.
 
-The app stores accounts, neighbourhoods, posts, comments, likes, events, and
-issues in a SQLite database on the phone. It does not need Wi-Fi, the laptop,
-or the Node.js/MySQL backend to log in or use these features. Post images are
-also copied into the phone's app storage.
+## Features
 
-Build the APK from the project folder:
+- Register and sign in to an account.
+- Choose a neighbourhood and browse its community feed.
+- Create posts, add images, comment, and like posts.
+- Create and view neighbourhood events.
+- Report and review community issues.
+- Browse neighbourhood and community information.
+- Use an administrator dashboard for local community management.
 
-```powershell
+## Tech stack
+
+- **App:** Flutter and Dart
+- **Database:** SQLite (`sqflite`) for the Flutter app
+- **Backend:** Node.js, Express, and MySQL
+
+> The project includes both a Flutter application and a backend foundation.
+> Backend deployment and integration can be configured to suit the target
+> environment.
+
+## Get started
+
+### Requirements
+
+- Flutter SDK with Dart 3.12.2 or newer.
+- An Android device or emulator (or another Flutter-supported platform).
+
+### Run the app
+
+From the project directory:
+
+```bash
+flutter pub get
+flutter run
+```
+
+To build a release APK for Android:
+
+```bash
 flutter build apk --release
 ```
 
-Install `build\app\outputs\flutter-apk\app-release.apk` on the phone. Create an
-account in the app, then log in with that account on the same phone.
+The APK is written to
+`build/app/outputs/flutter-apk/app-release.apk`.
 
-### Offline data
+### Run checks
 
-- Local accounts and app activity are stored only on this phone.
-- They are separate from the laptop's MySQL database and do not sync to it or
-  to other phones.
-- Reinstalling or clearing the app's storage may erase its local data. Export
-  or back up the app database before doing either.
-- Images entered as online URLs are not available offline; choose an image
-  file from the phone to store it locally.
-- The account registered with `divya@gmail.com` is the only administrator:
-  the Super Admin. It can view neighbours, meetings, and communities across the
-  device database. There is no admin approval step: neighbours can use the app
-  immediately after registering and logging in.
-- The app does not verify ownership of email addresses; use a hosted
-  authentication service before relying on email-based admin identity in a
-  shared or production deployment.
-- Admin data is local to the device and is not shared with other phones.
+```bash
+flutter analyze
+flutter test
+```
 
-### Registration and access
+## Project layout
 
-1. A new member registers with a neighbourhood choice.
-2. The member logs in and can immediately use the community features.
-3. The Super Admin can view registered neighbours, communities, and meetings
-   from the local database. Existing installations are migrated to allow access
-   without waiting for approval.
+```text
+lib/
+  database/    SQLite database and data operations
+  screens/     Welcome, account, feed, event, and admin screens
+  services/    API-related service code
+  theme/       App colors and Material theme
+  main.dart    App entry point
+backend/       Optional Express and MySQL service
+test/          Flutter widget and unit tests
+```
 
-The backend folder remains available for a future hosted/shared-data setup, but
-the Flutter app's current screens use the on-device database.
+## Optional backend
+
+The backend requires Node.js and a MySQL database. To run it locally, create
+`backend/.env` from `backend/.env.example`, set `DB_HOST`, `DB_USER`,
+`DB_PASSWORD`, and `DB_NAME` to match your MySQL setup, then run:
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+The MySQL database and tables must be set up separately. Keep real credentials
+in `.env`; do not commit them. Configure the app with your backend deployment
+when connecting it to a shared service.
+
+## Data and security notes
+
+- Images can be uploaded or referenced by URL.
+- `divya@gmail.com` is configured as the Super Admin account. The app does not
+  verify email ownership. This client-side role check is for
+  demonstration purposes and should not be used to secure a production service.
+- Do not use real or sensitive personal data when evaluating this project.

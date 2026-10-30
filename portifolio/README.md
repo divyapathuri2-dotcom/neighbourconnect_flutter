@@ -1,92 +1,46 @@
-# portifolio
+# NeighbourConnect
 
-## Local backend setup for Windows + phone
+## Use the app offline on an Android phone
 
-This project uses a Node.js backend on port 3000. The Flutter app must point to the machine running the backend.
+The app stores accounts, neighbourhoods, posts, comments, likes, events, and
+issues in a SQLite database on the phone. It does not need Wi-Fi, the laptop,
+or the Node.js/MySQL backend to log in or use these features. Post images are
+also copied into the phone's app storage.
 
-### 1) Start the backend on your Windows laptop
-
-```bash
-cd backend
-npm install
-node server.js
-```
-
-The server listens on `0.0.0.0:3000`, so it is reachable from the local network.
-
-### 2) Find your laptop IP address
-
-On Windows PowerShell:
+Build the APK from the project folder:
 
 ```powershell
-ipconfig
+flutter build apk --release
 ```
 
-Look for the IPv4 address under your Wi-Fi or Ethernet adapter, for example:
+Install `build\app\outputs\flutter-apk\app-release.apk` on the phone. Create an
+account in the app, then log in with that account on the same phone.
 
-```text
-192.168.1.50
-```
+### Offline data
 
-### 3) Launch the app
+- Local accounts and app activity are stored only on this phone.
+- They are separate from the laptop's MySQL database and do not sync to it or
+  to other phones.
+- Reinstalling or clearing the app's storage may erase its local data. Export
+  or back up the app database before doing either.
+- Images entered as online URLs are not available offline; choose an image
+  file from the phone to store it locally.
+- The account registered with `divya@gmail.com` is the only administrator:
+  the Super Admin. It can view neighbours, meetings, and communities across the
+  device database. There is no admin approval step: neighbours can use the app
+  immediately after registering and logging in.
+- The app does not verify ownership of email addresses; use a hosted
+  authentication service before relying on email-based admin identity in a
+  shared or production deployment.
+- Admin data is local to the device and is not shared with other phones.
 
-On the same Windows computer as the backend, the app uses
-`http://localhost:3000` by default:
+### Registration and access
 
-```bash
-flutter run
-```
+1. A new member registers with a neighbourhood choice.
+2. The member logs in and can immediately use the community features.
+3. The Super Admin can view registered neighbours, communities, and meetings
+   from the local database. Existing installations are migrated to allow access
+   without waiting for approval.
 
-For an Android emulator, the app uses `http://10.0.2.2:3000` by default.
-
-For a real phone connected to the same Wi-Fi, pass your laptop's current
-IPv4 address:
-
-```bash
-flutter run --dart-define=API_BASE_URL=http://192.168.1.50:3000
-```
-
-If you change the backend IP or machine, update the `API_BASE_URL` value and rerun the app.
-
-### 4) If the app still shows a connection error
-
-- Make sure the backend is still running with `node server.js`
-- Confirm the Windows firewall allows connections on port 3000
-- Confirm the phone and laptop are on the same Wi-Fi network
-- Make sure the URL matches the actual IP shown by `ipconfig`
-- For desktop, make sure the backend and Flutter app are running on the same computer
-
-## Use the phone app without keeping the laptop on
-
-The API and MySQL database must be hosted online; a phone cannot reach a backend
-that is only running on your laptop. One option is deploying both services on
-Railway:
-
-1. Push this project to a private GitHub repository. In Railway, create a
-   project from that repository and set the backend service root directory to
-   `/portifolio/backend`. The included `backend/Dockerfile` builds the API.
-2. Add a MySQL service. In the backend service's Variables settings, provide
-   `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` using the connection
-   values shown for the MySQL service. Railway supplies `PORT`.
-3. Export your existing `neighbourconnect` database and import it into the
-   hosted MySQL database. This repository does not include a database schema or
-   migrations, so login will not work until the existing tables are migrated.
-   Do not paste database passwords into chat or commit them to the repository.
-4. Generate a public HTTPS domain for the backend service. Add a persistent
-   volume mounted at `/data` and set `UPLOADS_DIR=/data/uploads` if uploaded
-   post images need to persist across deployments.
-5. Test `https://YOUR-BACKEND-DOMAIN/api/test` in a browser. It should return
-   JSON with `"success": true` once the database is connected.
-6. Build the phone app with the public backend URL:
-
-   ```powershell
-   flutter build apk --release --dart-define=API_BASE_URL=https://YOUR-BACKEND-DOMAIN
-   ```
-
-   Install `build\app\outputs\flutter-apk\app-release.apk` on your phone. The
-   backend and database will then run online without your laptop; rebuilding
-   the app is only necessary if the public API URL changes.
-
-Never commit your real `.env` file or database credentials. Use the hosting
-provider's secret/environment-variable settings instead. If any real database
-password was committed to Git, change it before deploying.
+The backend folder remains available for a future hosted/shared-data setup, but
+the Flutter app's current screens use the on-device database.

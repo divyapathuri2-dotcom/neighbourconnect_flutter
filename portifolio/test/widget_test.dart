@@ -1,30 +1,27 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:portifolio/main.dart';
+import 'package:portifolio/services/api_service.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('ApiService offline URL handling', () {
+    test('preserves local relative image paths', () {
+      expect(
+        ApiService.resolveUrl('/uploads/posts/example.jpg'),
+        '/uploads/posts/example.jpg',
+      );
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    test('does not rewrite URLs in offline mode', () {
+      expect(
+        ApiService.resolveUrl('https://images.example.com/example.jpg'),
+        'https://images.example.com/example.jpg',
+      );
+    });
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('NeighbourConnect app starts', (WidgetTester tester) async {
+    await tester.pumpWidget(const NeighbourConnectApp());
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('NeighbourConnect'), findsOneWidget);
   });
 }
